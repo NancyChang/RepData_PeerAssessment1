@@ -1,3 +1,12 @@
+---
+output:
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    toc: yes
+  pdf_document:
+    toc: yes
+---
 
 ###Reproducible Research Peer Assessment 1: PA1_template.rmd
 Nancy Chang
@@ -10,7 +19,7 @@ activity <- read.csv("activity.csv", sep=",", stringsAsFactors = FALSE)
 ```
 
 ###What is mean total number of steps taken per day?
-1. Calculate the total number of steps taken per day
+**1. Calculate the total number of steps taken per day.**
 ```{r, echo=TRUE}
 library(dplyr)
 Activity <- tbl_df(activity)
@@ -19,13 +28,16 @@ steps_day <- Activity %>%
     summarise(total_steps_per_day = sum(steps)) %>% 
     print
 ```
-2. Make a histogram of the total number of steps taken each day
+**2. Make a histogram of the total number of steps taken each day.**
 ```{r, echo=TRUE}
 steps_day$date <- as.Date(steps_day$date, format = "%Y-%m-%d")
+```
+Here is the histogram of the data
+```{r histogram,fig.height=4}
 hist(steps_day$date, breaks = "days", main= "Mean total steps taken per day", xlab="Date", ylab="total steps/per day", freq=TRUE)
 ```
 
-3. Calculate and report the mean and median of the total number of steps taken per day
+**3. Calculate and report the mean and median of the total number of steps taken per day.**
 ```{r, echo=TRUE}
 steps_mean <- Activity %>% 
          group_by(date) %>% 
@@ -34,7 +46,7 @@ steps_mean <- Activity %>%
 ```
 
 ###What is the average daily activity pattern?
-1. Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken.
+**1. Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken.**
 ```{r, echo=TRUE}
 steps_int <- na.omit(Activity) %>% 
     group_by(interval) %>% 
@@ -43,28 +55,28 @@ plot(steps_int$interval, steps_int$ave_steps, type="l", ylab="average steps per 
 ```
 
 ###Imputing missing values
-1. Calculate and report the total number of missing values in the dataset
+**1. Calculate and report the total number of missing values in the dataset.**
 ```{r, echo=TRUE}
 length(Activity$steps[Activity$steps =="NA"])
 ```
-2. Devise a strategy for filling in all of the missing values in the dataset.
+**2. Devise a strategy for filling in all of the missing values in the dataset.**
 ```{r, echo=TRUE}
 Act <- Activity
 Act$steps[is.na(Act$steps)] <- steps_int$ave_steps
 ```
-3. Create a new dataset that is equal to the original dataset but with the missing data filled in. And calculate and report the mean and median total number of steps taken per day.
+**3. Create a new dataset that is equal to the original dataset but with the missing data filled in. And calculate and report the mean and median total number of steps taken per day.**
 ```{r, echo=TRUE}
 Act_day <- group_by(Act, date)
 Act_daystep <- Act_day %>% summarise(steps=mean(steps)) %>% print
 ```
-4. Make a histogram of the total number of steps taken each day
+**4. Make a histogram of the total number of steps taken each day.**
 ```{r, echo=FALSE}
 Act_daystep$date <- as.Date(Act_daystep$date, format = "%Y-%m-%d")
 hist(Act_daystep$date, breaks = "days")
 ```
 
 ###Are there differences in activity patterns between weekdays and weekends?
-1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+**1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.**
 ```{r, echo=TRUE}
 Act$date <- as.Date(Act$date, format = "%Y-%m-%d")
 Act_w <- mutate(Act, weekdays = as.character(weekdays(date, abbreviate = TRUE)))
@@ -76,7 +88,7 @@ Act_weekday <- Act_w %>%
     summarize(steps_mean = mean(steps))%>%
     print
 ```
-2. Make a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, 
+**2. Make a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken.**
 ```{r, echo=FALSE}
 library(ggplot2)
 qplot(interval,steps_mean, data=Act_weekday,geom= "line",color=weekdays)
